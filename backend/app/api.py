@@ -25,19 +25,8 @@ async def get_people(
     order: Optional[str] = Query("asc")
 ):
     logger.info(f"[PEOPLE] page={page} search={search} sort_by={sort_by} order={order}")
-    start = (page - 1) * PAGE_SIZE
-    end = start + PAGE_SIZE
-    items = []
-    swapi_page = 1
-    while len(items) < end:
-        data = await swapi_client.fetch_people(swapi_page)
-        results = data.get("results", [])
-        if not results:
-            break
-        items.extend(results)
-        if not data.get("next"):
-            break
-        swapi_page += 1
+    data = await swapi_client.fetch_people(page)
+    items = data.get("results", [])
     # Filter by name
     search = search or ""
     items = utils.filter_by_name(items, search)
@@ -49,15 +38,11 @@ async def get_people(
     sort_by = sort_by or "name"
     order = order or "asc"
     items = utils.sort_items(items, sort_by, order, sorters)
-    paginated = items[start:end]
-    total_count = len(items)
-    next_page = page + 1 if end < total_count else None
-    prev_page = page - 1 if page > 1 else None
     return models.PaginatedResponse(
-        count=total_count,
-        next=next_page,
-        previous=prev_page,
-        results=paginated
+        count=data.get("count", len(items)),
+        next=data.get("next"),
+        previous=data.get("previous"),
+        results=items
     )
 
 @router.get("/planets", response_model=models.PaginatedResponse)
@@ -68,20 +53,8 @@ async def get_planets(
     order: Optional[str] = Query("asc")
 ):
     logger.info(f"[PLANETS] page={page} search={search} sort_by={sort_by} order={order}")
-    # Calcular el offset real
-    start = (page - 1) * PAGE_SIZE
-    end = start + PAGE_SIZE
-    items = []
-    swapi_page = 1
-    while len(items) < end:
-        data = await swapi_client.fetch_planets(swapi_page)
-        results = data.get("results", [])
-        if not results:
-            break
-        items.extend(results)
-        if not data.get("next"):
-            break
-        swapi_page += 1
+    data = await swapi_client.fetch_planets(page)
+    items = data.get("results", [])
     # Filter by name
     search = search or ""
     items = utils.filter_by_name(items, search)
@@ -93,15 +66,11 @@ async def get_planets(
     sort_by = sort_by or "name"
     order = order or "asc"
     items = utils.sort_items(items, sort_by, order, sorters)
-    paginated = items[start:end]
-    total_count = len(items)
-    next_page = page + 1 if end < total_count else None
-    prev_page = page - 1 if page > 1 else None
     return models.PaginatedResponse(
-        count=total_count,
-        next=next_page,
-        previous=prev_page,
-        results=paginated
+        count=data.get("count", len(items)),
+        next=data.get("next"),
+        previous=data.get("previous"),
+        results=items
     )
 
 @router.post("/simulate-ai-insight")
