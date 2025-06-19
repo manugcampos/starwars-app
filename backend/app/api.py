@@ -11,7 +11,7 @@ load_dotenv()
 
 router = APIRouter()
 
-PAGE_SIZE = 50
+PAGE_SIZE = 10
 
 # Set up logging
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
@@ -55,8 +55,8 @@ async def get_people(
     prev_page = page - 1 if page > 1 else None
     return models.PaginatedResponse(
         count=total_count,
-        next=str(next_page) if next_page else None,
-        previous=str(prev_page) if prev_page else None,
+        next=next_page,
+        previous=prev_page,
         results=paginated
     )
 
@@ -99,8 +99,8 @@ async def get_planets(
     prev_page = page - 1 if page > 1 else None
     return models.PaginatedResponse(
         count=total_count,
-        next=str(next_page) if next_page else None,
-        previous=str(prev_page) if prev_page else None,
+        next=next_page,
+        previous=prev_page,
         results=paginated
     )
 

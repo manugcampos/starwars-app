@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Route, Link, Switch, useLocation } from 'wouter';
+import { Route, Link, Switch } from 'wouter';
 import PeoplePage from './pages/PeoplePage';
 import PlanetsPage from './pages/PlanetsPage';
 import * as Toast from '@radix-ui/react-toast';
@@ -11,13 +11,6 @@ const queryClient = new QueryClient();
 const App: React.FC = () => {
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
-  const [location] = useLocation();
-
-  // Example: show toast on route change
-  useEffect(() => {
-    setToastMsg('Navigated to ' + location + '!');
-    setToastOpen(true);
-  }, [location]);
 
   return (
     <QueryClientProvider client={queryClient}>
