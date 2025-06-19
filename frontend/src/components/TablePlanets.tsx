@@ -17,23 +17,23 @@ const TablePlanets: React.FC<Props> = ({ data, isLoading, isError, page, onPageC
   if (!data) return null;
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-x-auto">
+    <div className="bg-white rounded-lg shadow-lg overflow-x-auto border border-gray-200">
       <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+        <thead className="bg-gradient-to-r from-blue-100 to-blue-200">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            <th className="px-6 py-3 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Name</th>
+            <th className="px-6 py-3 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Created</th>
+            <th className="px-6 py-3 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-white divide-y divide-gray-100">
           {data.results.map((planet) => (
-            <tr key={planet.url}>
-              <td className="px-6 py-4 whitespace-nowrap">{planet.name}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{new Date(planet.created).toLocaleString()}</td>
+            <tr key={planet.url} className="hover:bg-blue-50 transition-colors">
+              <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-800">{planet.name}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-gray-500">{new Date(planet.created).toLocaleString()}</td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <button
-                  className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded shadow hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm font-semibold transition-all"
                   onClick={() => onSimulateAI(planet.name)}
                 >
                   Simulate Insight
@@ -43,17 +43,17 @@ const TablePlanets: React.FC<Props> = ({ data, isLoading, isError, page, onPageC
           ))}
         </tbody>
       </table>
-      <div className="flex justify-end items-center p-4">
+      <div className="flex justify-between items-center p-4 bg-gray-50 border-t border-gray-200">
         <button
-          className="px-3 py-1 mr-2 bg-gray-200 rounded disabled:opacity-50"
+          className="px-4 py-2 bg-gray-200 rounded shadow hover:bg-gray-300 disabled:opacity-50 transition-all"
           onClick={() => onPageChange(page - 1)}
-          disabled={page <= 1}
+          disabled={!data.previous}
         >Previous</button>
-        <span className="mx-2">Page {page}</span>
+        <span className="mx-2 text-gray-700 font-semibold">Page {page}</span>
         <button
-          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+          className="px-4 py-2 bg-gray-200 rounded shadow hover:bg-gray-300 disabled:opacity-50 transition-all"
           onClick={() => onPageChange(page + 1)}
-          disabled={data.results.length < 15}
+          disabled={!data.next}
         >Next</button>
       </div>
     </div>

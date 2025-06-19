@@ -1,6 +1,6 @@
-fastapi
+fastapi>=0.110.0
 httpx
-uvicorn[standard]
+uvicorn[standard]>=0.29.0
 pydantic
 python-dotenv
 pytest 

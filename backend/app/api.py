@@ -11,7 +11,7 @@ load_dotenv()
 
 router = APIRouter()
 
-PAGE_SIZE = 15
+PAGE_SIZE = 50
 
 # Set up logging
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
@@ -25,22 +25,38 @@ async def get_people(
     order: Optional[str] = Query("asc")
 ):
     logger.info(f"[PEOPLE] page={page} search={search} sort_by={sort_by} order={order}")
-    data = await swapi_client.fetch_people(page)
-    items = data.get("results", [])
+    start = (page - 1) * PAGE_SIZE
+    end = start + PAGE_SIZE
+    items = []
+    swapi_page = 1
+    while len(items) < end:
+        data = await swapi_client.fetch_people(swapi_page)
+        results = data.get("results", [])
+        if not results:
+            break
+        items.extend(results)
+        if not data.get("next"):
+            break
+        swapi_page += 1
     # Filter by name
+    search = search or ""
     items = utils.filter_by_name(items, search)
     # Sort
     sorters = {
         "name": lambda x: x.get("name", ""),
         "created": lambda x: x.get("created", "")
     }
+    sort_by = sort_by or "name"
+    order = order or "asc"
     items = utils.sort_items(items, sort_by, order, sorters)
-    # Manual pagination
-    paginated = utils.paginate(items, 1, PAGE_SIZE)  # Always page 1 because SWAPI already paginated
+    paginated = items[start:end]
+    total_count = len(items)
+    next_page = page + 1 if end < total_count else None
+    prev_page = page - 1 if page > 1 else None
     return models.PaginatedResponse(
-        count=len(items),
-        next=data.get("next"),
-        previous=data.get("previous"),
+        count=total_count,
+        next=str(next_page) if next_page else None,
+        previous=str(prev_page) if prev_page else None,
         results=paginated
     )
 
@@ -52,22 +68,39 @@ async def get_planets(
     order: Optional[str] = Query("asc")
 ):
     logger.info(f"[PLANETS] page={page} search={search} sort_by={sort_by} order={order}")
-    data = await swapi_client.fetch_planets(page)
-    items = data.get("results", [])
+    # Calcular el offset real
+    start = (page - 1) * PAGE_SIZE
+    end = start + PAGE_SIZE
+    items = []
+    swapi_page = 1
+    while len(items) < end:
+        data = await swapi_client.fetch_planets(swapi_page)
+        results = data.get("results", [])
+        if not results:
+            break
+        items.extend(results)
+        if not data.get("next"):
+            break
+        swapi_page += 1
     # Filter by name
+    search = search or ""
     items = utils.filter_by_name(items, search)
     # Sort
     sorters = {
         "name": lambda x: x.get("name", ""),
         "created": lambda x: x.get("created", "")
     }
+    sort_by = sort_by or "name"
+    order = order or "asc"
     items = utils.sort_items(items, sort_by, order, sorters)
-    # Manual pagination
-    paginated = utils.paginate(items, 1, PAGE_SIZE)
+    paginated = items[start:end]
+    total_count = len(items)
+    next_page = page + 1 if end < total_count else None
+    prev_page = page - 1 if page > 1 else None
     return models.PaginatedResponse(
-        count=len(items),
-        next=data.get("next"),
-        previous=data.get("previous"),
+        count=total_count,
+        next=str(next_page) if next_page else None,
+        previous=str(prev_page) if prev_page else None,
         results=paginated
     )
 
